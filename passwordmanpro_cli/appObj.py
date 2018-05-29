@@ -18,11 +18,11 @@ class AppObjClass():
   
   def _cmdGET(self, argv):
     retval = ''
-    if len(argv) != 3:
+    if len(argv) != 4:
       retval = self._print(retval, 'ERROR - get needs arguments "passwordmanpro_cli get **RESOURSE_NAME** **PASSWORD_NAME**"')
       return retval
-    self.resourseName = argv[1]
-    self.passwordName = argv[2]
+    self.resourseName = argv[2]
+    self.passwordName = argv[3]
     retval = self._print(retval, 'TODO')
     return retval
     
@@ -40,7 +40,7 @@ class AppObjClass():
     if self.apikey is None:
       retval = self._print(retval, 'ERROR - you must specify PASSMANCLI_APIKEY or PASSMANCLI_APIKEYFILE enviroment variable')
       return retval
-    if len(argv) < 1:
+    if len(argv) < 2:
       retval = self._print(retval, 'ERROR - you must specify at least one argument')
       return retval
       
@@ -48,14 +48,15 @@ class AppObjClass():
     cmds = {}
     cmds['GET'] = self._cmdGET
 
-    if argv[0].upper().strip() in cmds:
-      retval = self._printNOLE(retval, cmds[argv[0].upper().strip()](argv))
+    if argv[1].upper().strip() in cmds:
+      retval = self._printNOLE(retval, cmds[argv[1].upper().strip()](argv))
       return retval
     retval = self._print(retval, 'ERROR - Unknown command supplied in first argument')
+    print(argv)
     return retval
 
 
 
 def main():
   app = AppObjClass()
-  print(app.run(os.environ), sys.argv)
+  print(app.run(os.environ, sys.argv))
