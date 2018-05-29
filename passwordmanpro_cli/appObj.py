@@ -10,6 +10,7 @@ class AppObjClass():
   apiuri = None
 
   def _callPassManAPI_get(self, apiurl):
+    print(self.url + apiurl + "&AUTHTOKEN=" + self.authtoken)
     with urllib.request.urlopen(self.url + apiurl + "&AUTHTOKEN=" + self.authtoken) as url:
       filll = url.read().decode()
     return filll
