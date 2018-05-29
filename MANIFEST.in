@@ -1,0 +1,6 @@
+recursive-include passwordmanpro_cli *
+
+global-exclude *.pyc
+
+include versioneer.py
+include passwordmanpro_cli/_version.py
