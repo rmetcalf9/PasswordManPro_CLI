@@ -27,4 +27,7 @@ setup(name='passwordmanpro_cli',
       zip_safe=False,
       install_requires=sp_install_requires,
       tests_require=sp_tests_require,
+      entry_points = {
+          'console_scripts': ['passwordmanpro_cli=passwordmanpro_cli:main'],
+      },
       include_package_data=True)

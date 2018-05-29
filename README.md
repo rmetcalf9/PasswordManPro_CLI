@@ -1,5 +1,7 @@
 # Password Manager PRO - Commandline interface
 
+[![PyPI version](https://badge.fury.io/py/passwordmanpro_cli.svg)](https://badge.fury.io/py/passwordmanpro_cli)
+
 Python based command line interface for [Password Manager Pro](https://www.manageengine.com/products/passwordmanagerpro/help/restapi.html). This provides a command line interface which uses the REST API to provide a command line to:
 
  - Read individual passwords

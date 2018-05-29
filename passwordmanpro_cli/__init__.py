@@ -8,7 +8,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from .AppObj import AppObjClass
+from .appObj import AppObjClass, main
 
 from ._version import get_versions
 __version__ = get_versions()['version']
