@@ -11,10 +11,10 @@ envUrlWithSlash = dict()
 envUrlWithSlash['PASSMANCLI_URL'] = 'TESTINGURL/'
 
 env = dict(envNoKey)
-env['PASSMANCLI_APIKEY'] = 'TESTINGURL'
+env['PASSMANCLI_AUTHTOKEN'] = 'TESTINGURL'
 
 envAPIKEYFILE = dict(envNoKey)
-envAPIKEYFILE['PASSMANCLI_APIKEYFILE'] = 'TESTINGURL.filename'
+envAPIKEYFILE['PASSMANCLI_AUTHTOKENFILE'] = 'TESTINGURL.filename'
 
 
 
@@ -44,7 +44,7 @@ class test_AppObj(unittest.TestCase):
   def test_MissingArguments(self):
     returnedValue = appObj.run(env, [])
     self.assertEqual(appObj.url,envNoKey['PASSMANCLI_URL'])
-    self.assertEqual(appObj.authtoken,env['PASSMANCLI_APIKEY'])
+    self.assertEqual(appObj.authtoken,env['PASSMANCLI_AUTHTOKEN'])
     self.assertEqual(returnedValue, 'ERROR - you must specify at least one argument\n', msg='Incorrect output')
 
   def test_UnknownCommand(self):
@@ -54,19 +54,19 @@ class test_AppObj(unittest.TestCase):
   def test_GetMissingArguments(self):
     returnedValue = appObj.run(env, ['passwordmanpro_cli', 'get'])
     self.assertEqual(appObj.url,envNoKey['PASSMANCLI_URL'])
-    self.assertEqual(appObj.authtoken,env['PASSMANCLI_APIKEY'])
+    self.assertEqual(appObj.authtoken,env['PASSMANCLI_AUTHTOKEN'])
     self.assertEqual(returnedValue, 'ERROR - get needs arguments "passwordmanpro_cli get **RESOURSE_NAME** **PASSWORD_NAME**"\n', msg='Incorrect output')
 
   def test_GetMissingPassword(self):
     returnedValue = appObj.run(env, ['passwordmanpro_cli', 'get', 'someResourse'])
     self.assertEqual(appObj.url,envNoKey['PASSMANCLI_URL'])
-    self.assertEqual(appObj.authtoken,env['PASSMANCLI_APIKEY'])
+    self.assertEqual(appObj.authtoken,env['PASSMANCLI_AUTHTOKEN'])
     self.assertEqual(returnedValue, 'ERROR - get needs arguments "passwordmanpro_cli get **RESOURSE_NAME** **PASSWORD_NAME**"\n', msg='Incorrect output')
 
   def test_GetNormal(self):
     returnedValue = appObj.run(env, ['passwordmanpro_cli', 'get', 'someResourse', 'somePass'])
     self.assertEqual(appObj.url,envNoKey['PASSMANCLI_URL'])
-    self.assertEqual(appObj.authtoken,env['PASSMANCLI_APIKEY'])
+    self.assertEqual(appObj.authtoken,env['PASSMANCLI_AUTHTOKEN'])
     self.assertEqual(appObj.resourseName,'someResourse')
     self.assertEqual(appObj.passwordName,'somePass')
     self.assertEqual(returnedValue, 'TODO\n', msg='Incorrect output')

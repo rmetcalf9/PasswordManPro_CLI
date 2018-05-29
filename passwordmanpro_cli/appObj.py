@@ -1,5 +1,6 @@
 import os
 import sys
+import urllib.request
 
 class AppObjClass():
   url = None
@@ -7,7 +8,12 @@ class AppObjClass():
   resourseName = None
   passwordName = None
   apiuri = None
-  
+
+  def _callPassManAPI_get(self, apiurl):
+    with urllib.request.urlopen(self.url + apiurl + "&AUTHTOKEN=" + self.authtoken) as url:
+      filll = url.read().decode()
+    return filll
+
   def _printNOLE(self, retval, text):
     return retval + text
   def _print(self, retval, text):
@@ -20,13 +26,14 @@ class AppObjClass():
   def _cmdRAWGET(self, argv):
     retval = ''
     if len(argv) != 3:
-      retval = self._print(retval, 'ERROR - get needs arguments "passwordmanpro_cli get **RESOURSE_NAME** **PASSWORD_NAME**"')
+      retval = self._print(retval, 'ERROR - get needs arguments "passwordmanpro_cli rawget **APIURI**"')
       return retval
     self.apiuri = argv[2]
     if self.apiuri[0] != '/':
       retval = self._print(retval, 'ERROR - rawget uri must start with a slash')
       return retval
-    return 'TODO'
+    retval = self._print(retval, self._callPassManAPI_get(self.apiuri))
+    return retval
 
   def _cmdGET(self, argv):
     retval = ''
@@ -48,10 +55,10 @@ class AppObjClass():
       return retval    
     self.url = env['PASSMANCLI_URL']
     self.authtoken = None
-    if 'PASSMANCLI_APIKEY' in env:
-      self.authtoken = env['PASSMANCLI_APIKEY']
-    if 'PASSMANCLI_APIKEYFILE' in env:
-      self.authtoken = self._getAuthTokenFromFile(env['PASSMANCLI_APIKEYFILE'])
+    if 'PASSMANCLI_AUTHTOKEN' in env:
+      self.authtoken = env['PASSMANCLI_AUTHTOKEN']
+    if 'PASSMANCLI_AUTHTOKENFILE' in env:
+      self.authtoken = self._getAuthTokenFromFile(env['PASSMANCLI_AUTHTOKENFILE'])
     if self.authtoken is None:
       retval = self._print(retval, 'ERROR - you must specify PASSMANCLI_AUTHTOKEN or PASSMANCLI_AUTHTOKENFILE enviroment variable')
       return retval
