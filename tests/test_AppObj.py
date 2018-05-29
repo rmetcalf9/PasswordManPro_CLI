@@ -17,24 +17,48 @@ envAPIKEYFILE['PASSMANCLI_APIKEYFILE'] = 'TESTINGURL.filename'
 
 class test_AppObj(unittest.TestCase):
   def test_withEmptyEnv(self):
-    returnedValue = appObj.run({})
+    returnedValue = appObj.run({}, [])
     self.assertEqual(returnedValue, 'ERROR - you must specify PASSMANCLI_URL enviroment variable\n', msg='Incorrect output')
 
   def test_withNoAPIKeySet(self):
-    returnedValue = appObj.run(envNoKey)
+    returnedValue = appObj.run(envNoKey, [])
     self.assertEqual(returnedValue, 'ERROR - you must specify PASSMANCLI_APIKEY or PASSMANCLI_APIKEYFILE enviroment variable\n', msg='Incorrect output')
     self.assertEqual(appObj.url,envNoKey['PASSMANCLI_URL'])
 
   @patch('passwordmanpro_cli.AppObjClass._getAPIKeyFromFile', return_value='abc123')
   def test_withKeySetFromFile(self, _getAPIKeyFromFileResult):
-    returnedValue = appObj.run(envAPIKEYFILE)
-    self.assertEqual(returnedValue, '', msg='Incorrect output')
+    returnedValue = appObj.run(envAPIKEYFILE, [])
     self.assertEqual(appObj.url,envNoKey['PASSMANCLI_URL'])
     self.assertEqual(appObj.apikey,'abc123')
+    self.assertEqual(returnedValue, 'ERROR - you must specify at least one argument\n', msg='Incorrect output')
 
-  def test_Normal(self):
-    returnedValue = appObj.run(env)
-    self.assertEqual(returnedValue, '', msg='Incorrect output')
+  def test_MissingArguments(self):
+    returnedValue = appObj.run(env, [])
     self.assertEqual(appObj.url,envNoKey['PASSMANCLI_URL'])
     self.assertEqual(appObj.apikey,env['PASSMANCLI_APIKEY'])
+    self.assertEqual(returnedValue, 'ERROR - you must specify at least one argument\n', msg='Incorrect output')
+
+  def test_UnknownCommand(self):
+    returnedValue = appObj.run(env, ['XXX'])
+    self.assertEqual(returnedValue, 'ERROR - Unknown command supplied in first argument\n', msg='Incorrect output')
+
+  def test_GetMissingArguments(self):
+    returnedValue = appObj.run(env, ['get'])
+    self.assertEqual(appObj.url,envNoKey['PASSMANCLI_URL'])
+    self.assertEqual(appObj.apikey,env['PASSMANCLI_APIKEY'])
+    self.assertEqual(returnedValue, 'ERROR - get needs arguments "passwordmanpro_cli get **RESOURSE_NAME** **PASSWORD_NAME**"\n', msg='Incorrect output')
+
+  def test_GetMissingPassword(self):
+    returnedValue = appObj.run(env, ['get', 'someResourse'])
+    self.assertEqual(appObj.url,envNoKey['PASSMANCLI_URL'])
+    self.assertEqual(appObj.apikey,env['PASSMANCLI_APIKEY'])
+    self.assertEqual(returnedValue, 'ERROR - get needs arguments "passwordmanpro_cli get **RESOURSE_NAME** **PASSWORD_NAME**"\n', msg='Incorrect output')
+
+  def test_GetNormal(self):
+    returnedValue = appObj.run(env, ['get', 'someResourse', 'somePass'])
+    self.assertEqual(appObj.url,envNoKey['PASSMANCLI_URL'])
+    self.assertEqual(appObj.apikey,env['PASSMANCLI_APIKEY'])
+    self.assertEqual(appObj.resourseName,'someResourse')
+    self.assertEqual(appObj.passwordName,'somePass')
+    self.assertEqual(returnedValue, 'TODO\n', msg='Incorrect output')
 
