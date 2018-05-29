@@ -3,19 +3,31 @@ import sys
 
 class AppObjClass():
   url = None
-  apikey = None
+  authtoken = None
   resourseName = None
   passwordName = None
+  apiuri = None
   
   def _printNOLE(self, retval, text):
     return retval + text
   def _print(self, retval, text):
     return self._printNOLE(retval,text) + '\n'
 
-  def _getAPIKeyFromFile(self, filename):
+  def _getAuthTokenFromFile(self, filename):
     file = open(filename, "r") 
     return file.read()
-  
+
+  def _cmdRAWGET(self, argv):
+    retval = ''
+    if len(argv) != 3:
+      retval = self._print(retval, 'ERROR - get needs arguments "passwordmanpro_cli get **RESOURSE_NAME** **PASSWORD_NAME**"')
+      return retval
+    self.apiuri = argv[2]
+    if self.apiuri[0] != '/':
+      retval = self._print(retval, 'ERROR - rawget uri must start with a slash')
+      return retval
+    return 'TODO'
+
   def _cmdGET(self, argv):
     retval = ''
     if len(argv) != 4:
@@ -31,14 +43,17 @@ class AppObjClass():
     if 'PASSMANCLI_URL' not in env:
       retval = self._print(retval, 'ERROR - you must specify PASSMANCLI_URL enviroment variable')
       return retval
+    if env['PASSMANCLI_URL'][-1:]=='/':
+      retval = self._print(retval, 'ERROR - PASSMANCLI_URL can not end with a slash')
+      return retval    
     self.url = env['PASSMANCLI_URL']
-    self.apikey = None
+    self.authtoken = None
     if 'PASSMANCLI_APIKEY' in env:
-      self.apikey = env['PASSMANCLI_APIKEY']
+      self.authtoken = env['PASSMANCLI_APIKEY']
     if 'PASSMANCLI_APIKEYFILE' in env:
-      self.apikey = self._getAPIKeyFromFile(env['PASSMANCLI_APIKEYFILE'])
-    if self.apikey is None:
-      retval = self._print(retval, 'ERROR - you must specify PASSMANCLI_APIKEY or PASSMANCLI_APIKEYFILE enviroment variable')
+      self.authtoken = self._getAuthTokenFromFile(env['PASSMANCLI_APIKEYFILE'])
+    if self.authtoken is None:
+      retval = self._print(retval, 'ERROR - you must specify PASSMANCLI_AUTHTOKEN or PASSMANCLI_AUTHTOKENFILE enviroment variable')
       return retval
     if len(argv) < 2:
       retval = self._print(retval, 'ERROR - you must specify at least one argument')
@@ -47,12 +62,12 @@ class AppObjClass():
     # Using a dictonary of all the command functions
     cmds = {}
     cmds['GET'] = self._cmdGET
+    cmds['RAWGET'] = self._cmdRAWGET
 
     if argv[1].upper().strip() in cmds:
       retval = self._printNOLE(retval, cmds[argv[1].upper().strip()](argv))
       return retval
     retval = self._print(retval, 'ERROR - Unknown command supplied in first argument')
-    print(argv)
     return retval
 
 
