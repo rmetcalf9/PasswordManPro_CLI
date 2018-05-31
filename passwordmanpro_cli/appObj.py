@@ -1,19 +1,39 @@
 import os
 import sys
 import urllib.request
+import json
+
+webserviceErrorException = Exception('Webservice Error')
+passwordProErrorException = Exception('Password Pro did not return success')
+resourseNotFoundException = Exception('Resourse Not Found')
+accountNotFoundException = Exception('Password Not Found')
 
 class AppObjClass():
   url = None
   authtoken = None
   resourseName = None
-  passwordName = None
+  accountName = None
   apiuri = None
 
+  def _callGet(self, url):
+    a = urllib.request.urlopen(url)
+    return { responseCode: a.getcode(), response: url.read().decode()}
+    return urllib.request.urlopen(url)
+
   def _callPassManAPI_get(self, apiurl):
-    print(self.url + apiurl + "&AUTHTOKEN=" + self.authtoken)
-    with urllib.request.urlopen(self.url + apiurl + "&AUTHTOKEN=" + self.authtoken) as url:
-      filll = url.read().decode()
-    return filll
+    resp = self._callGet(self.url + apiurl + "?AUTHTOKEN=" + self.authtoken)
+    if resp['responseCode']<300:
+      if resp['responseCode']>199:
+        resJSON = json.loads(resp['response'])
+        if resJSON['operation']['result']['status'] != 'Success':
+          print('ERROR Returned - ' + str(resp['responseCode']))
+          print(resJSON)
+          raise passwordProErrorException
+        return resJSON
+    # Note PasswordMan Pro gives 200 response code even if some erorrs occur so raw mode won't always catch them
+    print('ERROR Returned - ' + str(resp['responseCode']))
+    print(resp['response'])
+    raise webserviceErrorException
 
   def _printNOLE(self, retval, text):
     return retval + text
@@ -39,13 +59,25 @@ class AppObjClass():
   def _cmdGET(self, argv):
     retval = ''
     if len(argv) != 4:
-      retval = self._print(retval, 'ERROR - get needs arguments "passwordmanpro_cli get **RESOURSE_NAME** **PASSWORD_NAME**"')
+      retval = self._print(retval, 'ERROR - get needs arguments "passwordmanpro_cli get **RESOURSE_NAME** **ACCOUNT_NAME**"')
       return retval
     self.resourseName = argv[2]
-    self.passwordName = argv[3]
-    retval = self._print(retval, 'TODO')
-    return retval
+    self.accountName = argv[3]
     
+    listOfResourses = self._callPassManAPI_get("/restapi/json/v1/resources")
+    for curResourse in listOfResourses['operation']['Details']:
+      if curResourse['RESOURCE NAME'] == self.resourseName:
+        listOfPasswordsForThisResourse = self._callPassManAPI_get("/restapi/json/v1/resources/" + curResourse['RESOURCE ID'] + "/accounts")
+        for curAccount in listOfPasswordsForThisResourse['operation']['Details']['ACCOUNT LIST']:
+          if curAccount['ACCOUNT NAME'] == self.accountName:
+            password = self._callPassManAPI_get("/restapi/json/v1/resources/" + curResourse['RESOURCE ID'] + "/accounts/" + curAccount['ACCOUNT ID'] + "/password")
+            #No line break output here
+            retval = self._printNOLE(retval, password['operation']['Details']['PASSWORD'])
+            return retval
+        raise accountNotFoundException
+    raise resourseNotFoundException
+  
+  
   def run(self, env, argv):
     retval = ''
     if 'PASSMANCLI_URL' not in env:

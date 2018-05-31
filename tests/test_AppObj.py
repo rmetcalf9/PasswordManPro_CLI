@@ -1,4 +1,4 @@
-import unittest
+from TestHelperSuperClass import testHelperSuperClass
 from unittest.mock import patch
 import passwordmanpro_cli
 
@@ -16,9 +16,14 @@ env['PASSMANCLI_AUTHTOKEN'] = 'TESTINGURL'
 envAPIKEYFILE = dict(envNoKey)
 envAPIKEYFILE['PASSMANCLI_AUTHTOKENFILE'] = 'TESTINGURL.filename'
 
+resourseResponse = '{"operation":{"name":"GET RESOURCES","result":{"status":"Success","message":"Resources fetched successfully"},"totalRows":2,"Details":[{"RESOURCE DESCRIPTION":"Expermental server","RESOURCE NAME":"soadevteamserver-konga","RESOURCE ID":"170741","RESOURCE TYPE":"Linux","NOOFACCOUNTS":"1"},{"RESOURCE DESCRIPTION":"Expermental server","RESOURCE NAME":"soadevteamserver-portainer","RESOURCE ID":"171317","RESOURCE TYPE":"Linux","NOOFACCOUNTS":"1"}]}}'
+errorResourseResponse = '{"operation":{"name":"GET RESOURCES","result":{"status":"Failed","message":"Resources fetched successfully"},"totalRows":2,"Details":[{"RESOURCE DESCRIPTION":"Expermental server","RESOURCE NAME":"soadevteamserver-konga","RESOURCE ID":"170741","RESOURCE TYPE":"Linux","NOOFACCOUNTS":"1"},{"RESOURCE DESCRIPTION":"Expermental server","RESOURCE NAME":"soadevteamserver-portainer","RESOURCE ID":"171317","RESOURCE TYPE":"Linux","NOOFACCOUNTS":"1"}]}}'
 
+accountsResponse = '{"operation":{"name":"GET RESOURCE ACCOUNTLIST","result":{"status":"Success","message":"Resource details with account list fetched successfully"},"Details":{"RESOURCE ID":"170741","RESOURCE NAME":"soadevteamserver-konga","RESOURCE DESCRIPTION":"Expermental server","RESOURCE TYPE":"Linux","DNS NAME":"ic-soadevteam.cc.ic.ac.uk","PASSWORD POLICY":"Default IC Password Policy","DEPARTMENT":"soadev team","LOCATION":"","RESOURCE URL":"http://ic-soadevteam.cc.ic.ac.uk/konga","RESOURCE OWNER":"IC\\rjmetcal","CUSTOM FIELD":[{"CUSTOMFIELDVALUE":"","CUSTOMFIELDTYPE":"Password","CUSTOMFIELDLABEL":"Initial Screen Logon","CUSTOMFIELDCOLUMNNAME":"COLUMN_SCHAR1"},{"CUSTOMFIELDVALUE":"Development","CUSTOMFIELDTYPE":"Character","CUSTOMFIELDLABEL":"Usage","CUSTOMFIELDCOLUMNNAME":"COLUMN_CHAR1"}],"ACCOUNT LIST":[{"ISFAVPASS":"false","ACCOUNT NAME":"kongaadmin","PASSWDID":"244321","IS_TICKETID_REQD_MANDATORY":"false","ISREASONREQUIRED":"false","AUTOLOGONLIST":["Putty","SSH"],"PASSWORD STATUS":"****","IS_TICKETID_REQD":"false","ACCOUNT ID":"244321","AUTOLOGONSTATUS":"User is not allowed to automatically logging in to remote systems in mobile","IS_TICKETID_REQD_ACW":"false"}]}}}'
 
-class test_AppObj(unittest.TestCase):
+passwordResponse = '{"operation":{"name":"GET PASSWORD","result":{"status":"Success","message":"Password fetched successfully"},"Details":{"PASSWORD":"dummyPasswordForTest"}}}'
+
+class test_AppObj(testHelperSuperClass):
   def test_withEmptyEnv(self):
     returnedValue = appObj.run({}, [])
     self.assertEqual(returnedValue, 'ERROR - you must specify PASSMANCLI_URL enviroment variable\n', msg='Incorrect output')
@@ -55,22 +60,62 @@ class test_AppObj(unittest.TestCase):
     returnedValue = appObj.run(env, ['passwordmanpro_cli', 'get'])
     self.assertEqual(appObj.url,envNoKey['PASSMANCLI_URL'])
     self.assertEqual(appObj.authtoken,env['PASSMANCLI_AUTHTOKEN'])
-    self.assertEqual(returnedValue, 'ERROR - get needs arguments "passwordmanpro_cli get **RESOURSE_NAME** **PASSWORD_NAME**"\n', msg='Incorrect output')
+    self.assertEqual(returnedValue, 'ERROR - get needs arguments "passwordmanpro_cli get **RESOURSE_NAME** **ACCOUNT_NAME**"\n', msg='Incorrect output')
 
   def test_GetMissingPassword(self):
     returnedValue = appObj.run(env, ['passwordmanpro_cli', 'get', 'someResourse'])
     self.assertEqual(appObj.url,envNoKey['PASSMANCLI_URL'])
     self.assertEqual(appObj.authtoken,env['PASSMANCLI_AUTHTOKEN'])
-    self.assertEqual(returnedValue, 'ERROR - get needs arguments "passwordmanpro_cli get **RESOURSE_NAME** **PASSWORD_NAME**"\n', msg='Incorrect output')
+    self.assertEqual(returnedValue, 'ERROR - get needs arguments "passwordmanpro_cli get **RESOURSE_NAME** **ACCOUNT_NAME**"\n', msg='Incorrect output')
 
-  def test_GetNormal(self):
-    returnedValue = appObj.run(env, ['passwordmanpro_cli', 'get', 'someResourse', 'somePass'])
+  @patch('passwordmanpro_cli.AppObjClass._callGet')
+  def test_GetNormal(self, getResoursesResponse):
+    getResoursesResponse.side_effect  = [
+      { 'responseCode': 200, 'response': resourseResponse},
+      { 'responseCode': 200, 'response': accountsResponse},
+      { 'responseCode': 200, 'response': passwordResponse}
+    ]
+    returnedValue = appObj.run(env, ['passwordmanpro_cli', 'get', 'soadevteamserver-konga', 'kongaadmin'])
     self.assertEqual(appObj.url,envNoKey['PASSMANCLI_URL'])
     self.assertEqual(appObj.authtoken,env['PASSMANCLI_AUTHTOKEN'])
-    self.assertEqual(appObj.resourseName,'someResourse')
-    self.assertEqual(appObj.passwordName,'somePass')
-    self.assertEqual(returnedValue, 'TODO\n', msg='Incorrect output')
+    self.assertEqual(appObj.resourseName,'soadevteamserver-konga')
+    self.assertEqual(appObj.accountName,'kongaadmin')
+    #NOTE- no line break when password is supplied
+    self.assertEqual(returnedValue, 'dummyPasswordForTest', msg='Incorrect output')
+
+  #Sometimes an error is returned with 200 code
+  @patch('passwordmanpro_cli.AppObjClass._callGet', return_value={ 'responseCode': 200, 'response': errorResourseResponse})
+  def test_GetErrorResponse(self, getResoursesResponse):
+    with self.assertRaises(Exception) as context:
+      returnedValue = appObj.run(env, ['passwordmanpro_cli', 'get', 'someResourse', 'somePass'])
+    self.checkGotRightException(context,passwordmanpro_cli.passwordProErrorException)
+
+  @patch('passwordmanpro_cli.AppObjClass._callGet', return_value={ 'responseCode': 400, 'response': errorResourseResponse})
+  def test_GetErrorResponseWith400(self, getResoursesResponse):
+    with self.assertRaises(Exception) as context:
+      returnedValue = appObj.run(env, ['passwordmanpro_cli', 'get', 'someResourse', 'somePass'])
+    self.checkGotRightException(context,passwordmanpro_cli.webserviceErrorException)
 
   def test_GetRawMustStartWithSlash(self):
     returnedValue = appObj.run(env, ['passwordmanpro_cli', 'rawget', 'restapi/json/v1/resources'])
     self.assertEqual(returnedValue, 'ERROR - rawget uri must start with a slash\n', msg='Incorrect output')
+
+  @patch('passwordmanpro_cli.AppObjClass._callGet')
+  def test_GetNormalResourseNotFound(self, getResoursesResponse):
+    getResoursesResponse.side_effect  = [
+      { 'responseCode': 200, 'response': resourseResponse}
+    ]
+    with self.assertRaises(Exception) as context:
+      returnedValue = appObj.run(env, ['passwordmanpro_cli', 'get', 'someResourse', 'somePass'])
+    self.checkGotRightException(context,passwordmanpro_cli.resourseNotFoundException)
+
+  #Test password not found passwordNotFoundException
+  @patch('passwordmanpro_cli.AppObjClass._callGet')
+  def test_GetNormalPasswordNotFound(self, getResoursesResponse):
+    getResoursesResponse.side_effect  = [
+      { 'responseCode': 200, 'response': resourseResponse},
+      { 'responseCode': 200, 'response': accountsResponse}
+    ]
+    with self.assertRaises(Exception) as context:
+      returnedValue = appObj.run(env, ['passwordmanpro_cli', 'get', 'soadevteamserver-konga', 'somePass'])
+    self.checkGotRightException(context,passwordmanpro_cli.accountNotFoundException)
