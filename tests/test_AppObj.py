@@ -1,6 +1,7 @@
 from TestHelperSuperClass import testHelperSuperClass
 from unittest.mock import patch
 import passwordmanpro_cli
+import datetime
 
 appObj = passwordmanpro_cli.AppObjClass()
 
@@ -119,3 +120,20 @@ class test_AppObj(testHelperSuperClass):
     with self.assertRaises(Exception) as context:
       returnedValue = appObj.run(env, ['passwordmanpro_cli', 'get', 'soadevteamserver-konga', 'somePass'])
     self.checkGotRightException(context,passwordmanpro_cli.accountNotFoundException)
+
+  @patch('passwordmanpro_cli.AppObjClass._callGet')
+  def test_JavaPropsNoFilter(self, getResoursesResponse):
+    getResoursesResponse.side_effect  = [
+      { 'responseCode': 200, 'response': resourseResponse},
+      { 'responseCode': 200, 'response': accountsResponse},
+      { 'responseCode': 200, 'response': passwordResponse}
+    ]
+    testTime = datetime.datetime(2016,1,5,14,2,59,0,None)
+    returnedValue = appObj.runWithTime(env, ['passwordmanpro_cli', 'javaprops'], testTime)
+    self.assertEqual(appObj.url,envNoKey['PASSMANCLI_URL'])
+    self.assertEqual(appObj.authtoken,env['PASSMANCLI_AUTHTOKEN'])
+    self.assertEqual(appObj.filterToUse,None,msg='Filter should be none')
+    #NOTE- no line break when password is supplied
+    self.assertEqual(returnedValue, 'dummyPasswordForTest', msg='Incorrect output')
+
+#TODO Test with a filter
