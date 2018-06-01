@@ -16,7 +16,10 @@ Python and pip must be installed on the machine you wish to use.
  1. Create a API user in [Password Manager Pro](https://www.manageengine.com/products/passwordmanagerpro/help/restapi.html)
  2. Set the PASSMANCLI_AUTHTOKEN enviroment variable based on the user (Alternativly set PASSMANCLI_AUTHTOKENFILE if you wish to load the key from a file)
  3. Set the PASSMANCLI_URL enviroment variable based on your install of password manager pro
- 4. Install utility (pip3 install PasswordManPro_CLI
+ 4. Install utility:
+```
+pip3 install PasswordManPro_CLI
+```
  
 # Usage
 
