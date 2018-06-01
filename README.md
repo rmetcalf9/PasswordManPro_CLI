@@ -28,6 +28,17 @@ passwordmanpro_cli get **RESOURSE_NAME** **PASSWORD_NAME**
 
 ## Generate password file
 
+In password manager a resourse can have mutiple accounts. Each account has a username and a password, unfortunatly accounts do not have another name associated with them. This makes it impossible to refer to which account will be needed. 
+ - I have experimented with using the notes field but this is not returned in API calls
+ - I have experimented with using custom fields but these also were not returned in API calls
+As a workaround only resourses with a single acocunt are output in the generated file and the resourse name is used as an identifier.
+
+**resoursename**.username = someuser
+**resoursename**.password = somepassword
+
+This means to use this mode you must create your resourses so that each only has one account.
+
+This file can be created with the following command:
 ```
 passwordmanpro_cli javaprops **FILTER** > somefile.properties
 ```
