@@ -33,7 +33,7 @@ class AppObjClass():
           print('ERROR Returned - ' + str(resp['responseCode']))
           print(resJSON)
           raise passwordProErrorException
-        return { 'responseCode': resp['responseCode'], 'response': resJSON}
+        return { 'responseCode': resp['responseCode'], 'response': resJSON, 'RAWresponse': resp['response']}
     # Note PasswordMan Pro gives 200 response code even if some erorrs occur so raw mode won't always catch them
     print('ERROR Returned - ' + str(resp['responseCode']))
     print(resp['response'])
@@ -66,7 +66,8 @@ class AppObjClass():
     if self.apiuri[0] != '/':
       retval = self._print(retval, 'ERROR - rawget uri must start with a slash')
       return retval
-    retval = self._print(retval, self._callPassManAPI_get(self.apiuri))
+    resp = self._callPassManAPI_get(self.apiuri)
+    retval = self._print(retval, resp['RAWresponse'])
     return retval
 
   def _cmdGET(self, argv, curTime):
