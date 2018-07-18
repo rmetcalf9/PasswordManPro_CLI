@@ -26,7 +26,7 @@ pip3 install PasswordManPro_CLI
 ## Access single password
 
 ```
-passwordmanpro_cli get **RESOURSE_NAME** **PASSWORD_NAME**
+passwordmanpro_cli get "**RESOURSE_NAME**" "**PASSWORD_NAME**"
 ```
 
 ## Generate password file

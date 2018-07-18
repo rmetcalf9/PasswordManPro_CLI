@@ -4,7 +4,8 @@ python:
   - "3.4"
   - "3.5"
   - "3.6"
-  - "3.7"
+#  - "3.7" TODO Try again when travis installs python 3.7
+#https://s3.amazonaws.com/travis-python-archives/binaries/ubuntu/14.04/x86_64/python-3.7.tar.bz2 needs to exist
 install:
   - pip install tox-travis
 script:
