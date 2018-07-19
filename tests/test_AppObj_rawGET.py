@@ -4,15 +4,9 @@ import passwordmanpro_cli
 import datetime
 import json
 
+from samplePayloadsAndEnvs import env, rawGetOneResourseThreeAccountsSharedResponseRAW, rawGetOneResourseThreeAccountsSharedResponse
+
 appObj = passwordmanpro_cli.AppObjClass()
-
-envNoKey = dict()
-envNoKey['PASSMANCLI_URL'] = 'TESTINGURL'
-env = dict(envNoKey)
-env['PASSMANCLI_AUTHTOKEN'] = 'TESTINGURL'
-
-rawGetOneResourseThreeAccountsSharedResponseRAW = '{"operation":{"name":"GET RESOURCES","result":{"status":"Success","message":"Resources fetched successfully"},"totalRows":3,"Details":[{"RESOURCE DESCRIPTION":"Expermental server","RESOURCE NAME":"soadevteamserver-konga","RESOURCE ID":"170741","RESOURCE TYPE":"Linux","NOOFACCOUNTS":"1"},{"RESOURCE DESCRIPTION":"Expermental server","RESOURCE NAME":"soadevteamserver-portainer","RESOURCE ID":"171317","RESOURCE TYPE":"Linux","NOOFACCOUNTS":"1"},{"RESOURCE DESCRIPTION":"","RESOURCE NAME":"TestResourse","RESOURCE ID":"171322","RESOURCE TYPE":"Windows","NOOFACCOUNTS":"3"}]}}'
-rawGetOneResourseThreeAccountsSharedResponse = json.loads(rawGetOneResourseThreeAccountsSharedResponseRAW)
 
 class test_AppObj(testHelperSuperClass):
   def test_GetRawMustStartWithSlash(self):
