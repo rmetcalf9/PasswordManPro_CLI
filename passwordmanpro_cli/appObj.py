@@ -44,7 +44,7 @@ class AppObjClass():
   def _callGetAccounts(self, resourseID):
     return self._callPassManAPI_get("/restapi/json/v1/resources/" + resourseID + "/accounts")
   def _callGetPassword(self, resourseID, accountID):
-    return self._callPassManAPI_get("/restapi/json/v1/resources/" + resourseID + "/accounts" + accountID + "/password")
+    return self._callPassManAPI_get("/restapi/json/v1/resources/" + resourseID + "/accounts/" + accountID + "/password")
 
   #End of seperated functions
 
