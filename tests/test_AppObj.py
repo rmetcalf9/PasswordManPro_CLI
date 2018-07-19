@@ -3,7 +3,7 @@ from unittest.mock import patch
 import passwordmanpro_cli
 import datetime
 
-from samplePayloadsAndEnvs import envNoKey, envUrlWithSlash, envAPIKEYFILE, env, resourseResponse, resourseResponseRAW, errorResourseResponseRAW, accountsResponse, accountsResponseRAW, passwordResponse, passwordResponseRAW
+from samplePayloadsAndEnvs import envNoKey, envUrlWithSlash, envAPIKEYFILE, env, resourseResponse, resourseResponseRAW, resourseResponseNoResourses, errorResourseResponseRAW, accountsResponse, accountsResponseRAW, passwordResponse, passwordResponseRAW
 
 appObj = passwordmanpro_cli.AppObjClass()
 
@@ -107,4 +107,11 @@ class test_AppObj(testHelperSuperClass):
       returnedValue = appObj.run(env, ['passwordmanpro_cli', 'get', 'soadevteamserver-konga', 'somePass'])
     self.checkGotRightException(context,passwordmanpro_cli.accountNotFoundException)
 
-
+  @patch('passwordmanpro_cli.AppObjClass._callGetResourses')
+  def test_GetZeroResoursesShared(self, _callGetResoursesResponse):
+    _callGetResoursesResponse.side_effect  = [
+      { 'responseCode': 200, 'response': resourseResponseNoResourses}
+    ]
+    with self.assertRaises(Exception) as context:
+      returnedValue = appObj.run(env, ['passwordmanpro_cli', 'get', 'soadevteamserver-konga', 'somePass'])
+    self.checkGotRightException(context,passwordmanpro_cli.resourseNotFoundException)

@@ -79,6 +79,8 @@ class AppObjClass():
     self.accountName = argv[3]
     
     listOfResourses = self._callGetResourses()
+    if listOfResourses['response']['operation']['totalRows'] == 0:
+      raise resourseNotFoundException
     for curResourse in listOfResourses['response']['operation']['Details']:
       if curResourse['RESOURCE NAME'] == self.resourseName:
         listOfPasswordsForThisResourse = self._callGetAccounts(curResourse['RESOURCE ID'])
