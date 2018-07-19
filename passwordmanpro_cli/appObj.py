@@ -105,30 +105,31 @@ class AppObjClass():
     retval = self._print(retval, '')
 
     listOfResourses = self._callGetResourses()
-    for curResourse in listOfResourses['response']['operation']['Details']:
-      includeThisResourse = True
-      if self.filterToUse is not None:
-        includeThisResourse = False
-        print('Match test')
-        print(self.filterToUse)
-        print(curResourse['RESOURCE NAME'])
-        if re.search(self.filterToUse, curResourse['RESOURCE NAME'],re.M|re.I) is not None:
-          includeThisResourse = True
-          print('INCLUDING ' + curResourse['RESOURCE NAME'])
-      if includeThisResourse:
-        listOfAccountsForThisResourse = self._callGetAccounts(curResourse['RESOURCE ID'])
-        retval = self._print(retval, '')
-        numAccs = 0
-        accUser = ''
-        accPassAccID = ''
-        for curAccount in listOfAccountsForThisResourse['response']['operation']['Details']['ACCOUNT LIST']:
-          numAccs = numAccs + 1
-          accUser = curAccount['ACCOUNT NAME']
-          accPassAccID = curAccount['ACCOUNT ID']
-        if numAccs == 1:
-          retval = self._print(retval, curResourse['RESOURCE NAME'] + '.username = ' + accUser)
-          passwordResult = self._callGetPassword(curResourse['RESOURCE ID'], accPassAccID)
-          retval = self._print(retval, curResourse['RESOURCE NAME'] + '.password = ' + passwordResult['response']['operation']['Details']['PASSWORD'])
+    if listOfResourses['response']['operation']['totalRows'] != 0:
+      for curResourse in listOfResourses['response']['operation']['Details']:
+        includeThisResourse = True
+        if self.filterToUse is not None:
+          includeThisResourse = False
+          print('Match test')
+          print(self.filterToUse)
+          print(curResourse['RESOURCE NAME'])
+          if re.search(self.filterToUse, curResourse['RESOURCE NAME'],re.M|re.I) is not None:
+            includeThisResourse = True
+            print('INCLUDING ' + curResourse['RESOURCE NAME'])
+        if includeThisResourse:
+          listOfAccountsForThisResourse = self._callGetAccounts(curResourse['RESOURCE ID'])
+          retval = self._print(retval, '')
+          numAccs = 0
+          accUser = ''
+          accPassAccID = ''
+          for curAccount in listOfAccountsForThisResourse['response']['operation']['Details']['ACCOUNT LIST']:
+            numAccs = numAccs + 1
+            accUser = curAccount['ACCOUNT NAME']
+            accPassAccID = curAccount['ACCOUNT ID']
+          if numAccs == 1:
+            retval = self._print(retval, curResourse['RESOURCE NAME'] + '.username = ' + accUser)
+            passwordResult = self._callGetPassword(curResourse['RESOURCE ID'], accPassAccID)
+            retval = self._print(retval, curResourse['RESOURCE NAME'] + '.password = ' + passwordResult['response']['operation']['Details']['PASSWORD'])
     retval = self._print(retval, '')
     retval = self._print(retval, '# End of file')
     retval = self._print(retval, '')
