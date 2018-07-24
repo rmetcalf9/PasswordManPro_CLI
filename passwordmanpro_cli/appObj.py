@@ -129,9 +129,9 @@ class AppObjClass():
             accUser = curAccount['ACCOUNT NAME']
             accPassAccID = curAccount['ACCOUNT ID']
           if numAccs == 1:
-            retval = self._print(retval, curResourse['RESOURCE NAME'] + '.username = ' + accUser)
+            retval = self._print(retval, "global.passman." + curResourse['RESOURCE NAME'] + '.username = ' + accUser)
             passwordResult = self._callGetPassword(curResourse['RESOURCE ID'], accPassAccID)
-            retval = self._print(retval, curResourse['RESOURCE NAME'] + '.password = ' + passwordResult['response']['operation']['Details']['PASSWORD'])
+            retval = self._print(retval, "global.passman." + curResourse['RESOURCE NAME'] + '.password = ' + passwordResult['response']['operation']['Details']['PASSWORD'])
     retval = self._print(retval, '')
     retval = self._print(retval, '# End of file')
     retval = self._print(retval, '')
