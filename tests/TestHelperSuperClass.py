@@ -1,6 +1,5 @@
 import unittest
 
-
 class testHelperSuperClass(unittest.TestCase):
   def checkGotRightException(self, context, ExpectedException):
     if (context.exception != None):

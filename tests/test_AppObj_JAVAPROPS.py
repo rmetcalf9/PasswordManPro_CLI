@@ -3,6 +3,8 @@ from unittest.mock import patch
 import passwordmanpro_cli
 import datetime
 import json
+from io import StringIO
+import sys
 
 from samplePayloadsAndEnvs import envNoKey, env, resourseResponse, accountsResponse, passwordResponse, resourseResponseNoResourses
 
@@ -25,7 +27,21 @@ class test_AppObj(testHelperSuperClass):
       { 'responseCode': 200, 'response': passwordResponse}
     ]
     testTime = datetime.datetime(2016,1,5,14,2,59,0,None)
-    returnedValue = appObj.runWithTime(env, ['passwordmanpro_cli', 'javaprops'], testTime)
+    
+    returnedValue = None
+    stdoutValue = ""
+    stderrValue = ""
+    out, sys.stdout, err, sys.stderr = sys.stdout, StringIO(), sys.stderr, StringIO()
+    try:
+      returnedValue = appObj.runWithTime(env, ['passwordmanpro_cli', 'javaprops'], testTime)
+      sys.stdout.seek(0)
+      stdoutValue = sys.stdout.read()
+      sys.stderr.seek(0)
+      stderrValue = sys.stderr.read()
+    finally:
+      sys.stdout = out
+      sys.stderr = err
+    
     self.assertEqual(appObj.url,envNoKey['PASSMANCLI_URL'])
     self.assertEqual(appObj.authtoken,env['PASSMANCLI_AUTHTOKEN'])
     self.assertEqual(appObj.filterToUse,None,msg='Filter should be none')
@@ -63,7 +79,23 @@ class test_AppObj(testHelperSuperClass):
       { 'responseCode': 200, 'response': passwordResponse}
     ]
     testTime = datetime.datetime(2016,1,5,14,2,59,0,None)
-    returnedValue = appObj.runWithTime(env, ['passwordmanpro_cli', 'javaprops', 'konga'], testTime)
+    returnedValue = None
+    stdoutValue = ""
+    stderrValue = ""
+    out, sys.stdout, err, sys.stderr = sys.stdout, StringIO(), sys.stderr, StringIO()
+    try:
+      returnedValue = appObj.runWithTime(env, ['passwordmanpro_cli', 'javaprops', 'konga'], testTime)
+      sys.stdout.seek(0)
+      stdoutValue = sys.stdout.read()
+      sys.stderr.seek(0)
+      stderrValue = sys.stderr.read()
+    finally:
+      sys.stdout = out
+      sys.stderr = err
+
+    self.assertEqual(stdoutValue, "", msg="Output File STDOUT was not empty")
+    self.assertEqual(stdoutValue, "", msg="Output File STDERR was not empty")
+
     self.assertEqual(appObj.url,envNoKey['PASSMANCLI_URL'])
     self.assertEqual(appObj.authtoken,env['PASSMANCLI_AUTHTOKEN'])
     self.assertEqual(appObj.filterToUse,'konga')

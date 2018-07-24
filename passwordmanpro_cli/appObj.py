@@ -112,12 +112,8 @@ class AppObjClass():
         includeThisResourse = True
         if self.filterToUse is not None:
           includeThisResourse = False
-          print('Match test')
-          print(self.filterToUse)
-          print(curResourse['RESOURCE NAME'])
           if re.search(self.filterToUse, curResourse['RESOURCE NAME'],re.M|re.I) is not None:
             includeThisResourse = True
-            print('INCLUDING ' + curResourse['RESOURCE NAME'])
         if includeThisResourse:
           listOfAccountsForThisResourse = self._callGetAccounts(curResourse['RESOURCE ID'])
           retval = self._print(retval, '')
