@@ -29,17 +29,14 @@ pip3 install PasswordManPro_CLI
 passwordmanpro_cli get "**RESOURSE_NAME**" "**PASSWORD_NAME**"
 ```
 
-## Generate password file
+## Generate java properties style password file
 
-In password manager a resourse can have mutiple accounts. Each account has a username and a password, unfortunatly accounts do not have another name associated with them. This makes it impossible to refer to which account will be needed. 
- - I have experimented with using the notes field but this is not returned in API calls
- - I have experimented with using custom fields but these also were not returned in API calls
-As a workaround only resourses with a single acocunt are output in the generated file and the resourse name is used as an identifier.
-
-**resoursename**.username = someuser
+e.g.:<br>
+**resoursename**.username = someuser<br>
 **resoursename**.password = somepassword
 
-This means to use this mode you must create your resourses so that each only has one account.
+
+Only resourses with a single account are output - see [Limitations of Password manager API](### Limitations of Password manager API)
 
 This file can be created with the following command:
 ```
@@ -61,3 +58,12 @@ passwordmanpro_cli rawget /restapi/json/v1/resources
 
 
 
+## Notes
+
+### Limitations of Password manager API
+In password manager a resourse can have mutiple accounts. Each account has a username and a password, unfortunatly accounts do not have another name associated with them. This makes it impossible to refer to which account will be needed. 
+ - I have experimented with using the notes field but this is not returned in API calls
+ - I have experimented with using custom fields but these also were not returned in API calls
+As a workaround only resourses with a single acocunt are output in the generated file and the resourse name is used as an identifier.
+
+This means to use this files you must create your resourses so that each only has one account.
