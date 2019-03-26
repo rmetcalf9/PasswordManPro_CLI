@@ -11,6 +11,11 @@ resourseNotFoundException = Exception('Resourse Not Found')
 accountNotFoundException = Exception('Password Not Found')
 badArgumentsException = Exception('Bad arguments')
 
+# Function to output error
+def eprint(*args, **kwargs):
+  print(*args, **kwargs)
+  print(*args, file=sys.stderr, **kwargs)
+
 class AppObjClass():
   url = None
   authtoken = None
@@ -30,13 +35,13 @@ class AppObjClass():
       if resp['responseCode']>199:
         resJSON = json.loads(resp['response'])
         if resJSON['operation']['result']['status'] != 'Success':
-          print('ERROR Returned - ' + str(resp['responseCode']))
-          print(resJSON)
+          eprint('ERROR Returned - ' + str(resp['responseCode']))
+          eprint(resJSON)
           raise passwordProErrorException
         return { 'responseCode': resp['responseCode'], 'response': resJSON, 'RAWresponse': resp['response']}
     # Note PasswordMan Pro gives 200 response code even if some erorrs occur so raw mode won't always catch them
-    print('ERROR Returned - ' + str(resp['responseCode']))
-    print(resp['response'])
+    eprint('ERROR Returned - ' + str(resp['responseCode']))
+    eprint(resp['response'])
     raise webserviceErrorException
 
   def _callGetResourses(self):
