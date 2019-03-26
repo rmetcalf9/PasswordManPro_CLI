@@ -35,13 +35,17 @@ class AppObjClass():
       if resp['responseCode']>199:
         resJSON = json.loads(resp['response'])
         if resJSON['operation']['result']['status'] != 'Success':
-          eprint('ERROR Returned - ' + str(resp['responseCode']))
-          eprint(resJSON)
+          eprint('ERROR Success not returned from passwordmanagerpro')
+          eprint('Using URL - ' + self.url + apiurl + ' (AUTHTOKEN ommitted)')
+          eprint('ResponseCode - ' + str(resp['responseCode']))
+          eprint('resJSON - ' + str(resJSON))
           raise passwordProErrorException
         return { 'responseCode': resp['responseCode'], 'response': resJSON, 'RAWresponse': resp['response']}
     # Note PasswordMan Pro gives 200 response code even if some erorrs occur so raw mode won't always catch them
-    eprint('ERROR Returned - ' + str(resp['responseCode']))
-    eprint(resp['response'])
+    eprint('ERROR non-200 return code from passwordmanagerpro')
+    eprint('Using URL - ' + self.url + apiurl + ' (AUTHTOKEN ommitted)')
+    eprint('responseCode - ' + str(resp['responseCode']))
+    eprint('response - ' + str(resp['response']))
     raise webserviceErrorException
 
   def _callGetResourses(self):
