@@ -52,6 +52,7 @@ class AppObjClass():
           eprint('Using URL - ' + self.url + apiurl + ' (AUTHTOKEN ommitted - ' + str(len(self.authtoken)) + ')')
           eprint('ResponseCode - ' + str(resp['responseCode']))
           eprint('resJSON - ' + str(resJSON))
+          eprint("IP Being used to send message might be: " + getThisMachinesIP())
           raise passwordProErrorException
         return { 'responseCode': resp['responseCode'], 'response': resJSON, 'RAWresponse': resp['response']}
     # Note PasswordMan Pro gives 200 response code even if some erorrs occur so raw mode won't always catch them
@@ -117,13 +118,6 @@ class AppObjClass():
                   retval = self._printNOLE(retval, password['response']['operation']['Details']['PASSWORD'])
                   return retval
               raise accountNotFoundException
-        if 'result' in listOfResourses['response']['operation']:
-          if 'status'  in listOfResourses['response']['operation']['result']:
-            if listOfResourses['response']['operation']['result']['status'].upper().strip() != 'SUCCES':
-              eprint('ERROR - could not find resourses')
-              eprint(listOfResourses['response']['operation']['result'])
-              eprint("IP Being used to send message might be: " + getThisMachinesIP())
-              raise resourseNotFoundException
     raise resourseNotFoundException
   
   def _cmdJAVAPROPS(self, argv, curTime):
