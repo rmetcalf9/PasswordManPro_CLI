@@ -49,7 +49,7 @@ class AppObjClass():
         resJSON = json.loads(resp['response'])
         if resJSON['operation']['result']['status'] != 'Success':
           eprint('ERROR Success not returned from passwordmanagerpro')
-          eprint('Using URL - ' + self.url + apiurl + ' (AUTHTOKEN ommitted)')
+          eprint('Using URL - ' + self.url + apiurl + ' (AUTHTOKEN ommitted - ' + str(len(self.authtoken)) + ')')
           eprint('ResponseCode - ' + str(resp['responseCode']))
           eprint('resJSON - ' + str(resJSON))
           raise passwordProErrorException
