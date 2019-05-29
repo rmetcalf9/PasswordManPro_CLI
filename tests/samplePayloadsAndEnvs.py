@@ -37,4 +37,6 @@ accountsResponse = json.loads(accountsResponseRAW)
 passwordResponseRAW = '{"operation":{"name":"GET PASSWORD","result":{"status":"Success","message":"Password fetched successfully"},"Details":{"PASSWORD":"dummyPasswordForTest"}}}'
 passwordResponse = json.loads(passwordResponseRAW)
 
+userNotAllowedToAccessFromThisHostRAW = '{"operation": {"name": "Authentication", "result": {"status": "Failed", "message": "User is not allowed to access from this host"}}}'
+userNotAllowedToAccessFromThisHost = json.loads(userNotAllowedToAccessFromThisHostRAW)
 

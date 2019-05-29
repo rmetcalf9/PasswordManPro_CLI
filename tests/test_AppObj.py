@@ -3,7 +3,7 @@ from unittest.mock import patch
 import passwordmanpro_cli
 import datetime
 
-from samplePayloadsAndEnvs import envNoKey, envUrlWithSlash, envAPIKEYFILE, env, resourseResponse, resourseResponseRAW, resourseResponseNoResourses, errorResourseResponseRAW, accountsResponse, accountsResponseRAW, passwordResponse, passwordResponseRAW
+from samplePayloadsAndEnvs import envNoKey, envUrlWithSlash, envAPIKEYFILE, env, resourseResponse, resourseResponseRAW, resourseResponseNoResourses, errorResourseResponseRAW, accountsResponse, accountsResponseRAW, passwordResponse, passwordResponseRAW, userNotAllowedToAccessFromThisHost
 
 appObj = passwordmanpro_cli.AppObjClass()
 
@@ -115,3 +115,14 @@ class test_AppObj(testHelperSuperClass):
     with self.assertRaises(Exception) as context:
       returnedValue = appObj.run(env, ['passwordmanpro_cli', 'get', 'soadevteamserver-konga', 'somePass'])
     self.checkGotRightException(context,passwordmanpro_cli.resourseNotFoundException)
+
+  @patch('passwordmanpro_cli.AppObjClass._callGetResourses')
+  def test_UserNotAllowedToAccess(self, _callGetResoursesResponse):
+    _callGetResoursesResponse.side_effect  = [
+      { 'responseCode': 200, 'response': userNotAllowedToAccessFromThisHost}
+    ]
+    #with self.assertRaises(Exception) as context:
+    returnedValue = appObj.run(env, ['passwordmanpro_cli', 'get', 'soadevteamserver-konga', 'somePass'])
+    #self.checkGotRightException(context,passwordmanpro_cli.resourseNotFoundException)
+
+

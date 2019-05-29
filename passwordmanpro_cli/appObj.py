@@ -4,6 +4,7 @@ import urllib.request
 import json
 import datetime
 import re
+import socket
 
 webserviceErrorException = Exception('Webservice Error')
 passwordProErrorException = Exception('Password Pro did not return success')
@@ -15,6 +16,18 @@ badArgumentsException = Exception('Bad arguments')
 def eprint(*args, **kwargs):
   print(*args, **kwargs)
   print(*args, file=sys.stderr, **kwargs)
+
+# function to get local address
+def getThisMachinesIP():
+    try:
+      s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+      s.connect(("8.8.8.8", 80))
+      socketName = s.getsockname()[0]
+      s.close()
+      return socketName
+    except:
+      return "Unknown"
+
 
 class AppObjClass():
   url = None
@@ -88,6 +101,15 @@ class AppObjClass():
     self.accountName = argv[3]
     
     listOfResourses = self._callGetResourses()
+    if 'response' in listOfResourses:
+      if 'operation' in listOfResourses['response']:
+        if 'result' in listOfResourses['response']['operation']:
+          if 'status'  in listOfResourses['response']['operation']['result']:
+            if listOfResourses['response']['operation']['result']['status'].upper().strip() != 'SUCCES':
+              eprint('ERROR - could not find resourses')
+              eprint(listOfResourses['response']['operation']['result'])
+              eprint("IP Being used to send message might be: " + getThisMachinesIP())
+              raise resourseNotFoundException
     if listOfResourses['response']['operation']['totalRows'] == 0:
       raise resourseNotFoundException
     for curResourse in listOfResourses['response']['operation']['Details']:
