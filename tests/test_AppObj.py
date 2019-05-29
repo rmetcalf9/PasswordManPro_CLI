@@ -121,8 +121,8 @@ class test_AppObj(testHelperSuperClass):
     _callGetResoursesResponse.side_effect  = [
       { 'responseCode': 200, 'response': userNotAllowedToAccessFromThisHost}
     ]
-    #with self.assertRaises(Exception) as context:
-    returnedValue = appObj.run(env, ['passwordmanpro_cli', 'get', 'soadevteamserver-konga', 'somePass'])
-    #self.checkGotRightException(context,passwordmanpro_cli.resourseNotFoundException)
+    with self.assertRaises(Exception) as context:
+      returnedValue = appObj.run(env, ['passwordmanpro_cli', 'get', 'soadevteamserver-konga', 'somePass'])
+    self.checkGotRightException(context,passwordmanpro_cli.resourseNotFoundException)
 
 

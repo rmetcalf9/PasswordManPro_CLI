@@ -56,7 +56,7 @@ class AppObjClass():
         return { 'responseCode': resp['responseCode'], 'response': resJSON, 'RAWresponse': resp['response']}
     # Note PasswordMan Pro gives 200 response code even if some erorrs occur so raw mode won't always catch them
     eprint('ERROR non-200 return code from passwordmanagerpro')
-    eprint('Using URL - ' + self.url + apiurl + ' (AUTHTOKEN ommitted)')
+    eprint('Using URL - ' + self.url + apiurl + ' (AUTHTOKEN ommitted - ' + str(len(self.authtoken)) + ')')
     eprint('responseCode - ' + str(resp['responseCode']))
     eprint('response - ' + str(resp['response']))
     raise webserviceErrorException
@@ -103,6 +103,20 @@ class AppObjClass():
     listOfResourses = self._callGetResourses()
     if 'response' in listOfResourses:
       if 'operation' in listOfResourses['response']:
+        if 'totalRows' in listOfResourses['response']['operation']:
+          if listOfResourses['response']['operation']['totalRows'] == 0:
+            raise resourseNotFoundException
+        if 'Details' in listOfResourses['response']['operation']:
+          for curResourse in listOfResourses['response']['operation']['Details']:
+            if curResourse['RESOURCE NAME'] == self.resourseName:
+              listOfPasswordsForThisResourse = self._callGetAccounts(curResourse['RESOURCE ID'])
+              for curAccount in listOfPasswordsForThisResourse['response']['operation']['Details']['ACCOUNT LIST']:
+                if curAccount['ACCOUNT NAME'] == self.accountName:
+                  password = self._callGetPassword(curResourse['RESOURCE ID'], curAccount['ACCOUNT ID'])
+                  #No line break output here
+                  retval = self._printNOLE(retval, password['response']['operation']['Details']['PASSWORD'])
+                  return retval
+              raise accountNotFoundException
         if 'result' in listOfResourses['response']['operation']:
           if 'status'  in listOfResourses['response']['operation']['result']:
             if listOfResourses['response']['operation']['result']['status'].upper().strip() != 'SUCCES':
@@ -110,18 +124,6 @@ class AppObjClass():
               eprint(listOfResourses['response']['operation']['result'])
               eprint("IP Being used to send message might be: " + getThisMachinesIP())
               raise resourseNotFoundException
-    if listOfResourses['response']['operation']['totalRows'] == 0:
-      raise resourseNotFoundException
-    for curResourse in listOfResourses['response']['operation']['Details']:
-      if curResourse['RESOURCE NAME'] == self.resourseName:
-        listOfPasswordsForThisResourse = self._callGetAccounts(curResourse['RESOURCE ID'])
-        for curAccount in listOfPasswordsForThisResourse['response']['operation']['Details']['ACCOUNT LIST']:
-          if curAccount['ACCOUNT NAME'] == self.accountName:
-            password = self._callGetPassword(curResourse['RESOURCE ID'], curAccount['ACCOUNT ID'])
-            #No line break output here
-            retval = self._printNOLE(retval, password['response']['operation']['Details']['PASSWORD'])
-            return retval
-        raise accountNotFoundException
     raise resourseNotFoundException
   
   def _cmdJAVAPROPS(self, argv, curTime):
