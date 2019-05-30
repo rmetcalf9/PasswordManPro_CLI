@@ -67,3 +67,16 @@ In password manager a resourse can have mutiple accounts. Each account has a use
 As a workaround only resourses with a single acocunt are output in the generated file and the resourse name is used as an identifier.
 
 This means to use this files you must create your resourses so that each only has one account.
+
+### Using on a windows Box
+
+On windows it is possible to set the output to an enviroment varaible.
+ - you must > nul otherwise passwords will appear in Jenkins logs
+
+This means the UiLauncher can recieve passwords as JSON arguments:
+
+````
+FOR /F "tokens=*" %g IN ('passwordmanpro_cli jsonpropssingleline BANNER') do (SET PASSVAR=%g) > nul
+
+UiLauncher.exe /file:"workflow.xaml" /input:"%PASSVAR%"
+````
