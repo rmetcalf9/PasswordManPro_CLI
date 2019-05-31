@@ -43,6 +43,24 @@ This file can be created with the following command:
 passwordmanpro_cli javaprops **FILTER** > somefile.properties
 ```
 
+You can also provide mutiple filter strings and in this case if a resourse name
+
+## Generate JSON peoperties style output
+
+JSON style output can also be generated. There are two commands for this:
+ - jsonsingleline
+ - jsonsinglelineEscapeQuote
+
+They both operate the same except EscapeQuote outputs \" rather than ". This is useful on windows machines. Both these commands support mutiple filter strings.
+
+Example:
+```
+passwordmanpro_cli jsonsingleline **FILTER**
+passwordmanpro_cli jsonsinglelineEscapeQuote **FILTER1** **FILTER2**
+```
+ 
+
+
 ## Directly access the API
 
 The previous functions were created for convience because the API uses resourse ID and password ID rather than the names. To provide further flexibility the rawget command is provided which allows users to call apis. (The auth token is added invisibly based on enviroment paramaters)
@@ -76,7 +94,7 @@ On windows it is possible to set the output to an enviroment varaible.
 This means the UiLauncher can recieve passwords as JSON arguments:
 
 ````
-FOR /F "tokens=*" %g IN ('passwordmanpro_cli jsonpropssingleline BANNER') do (SET PASSVAR=%g) > nul
+FOR /F "tokens=*" %g IN ('passwordmanpro_cli jsonsingleline BANNER') do (SET PASSVAR=%g) > nul
 
 UiLauncher.exe /file:"workflow.xaml" /input:"%PASSVAR%"
 ````

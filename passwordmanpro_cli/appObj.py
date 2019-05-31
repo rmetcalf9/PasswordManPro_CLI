@@ -162,7 +162,6 @@ class AppObjClass():
     retvalI.retval = self._print(retvalI.retval, '# on ' + str(curTime))
     retvalI.retval = self._print(retvalI.retval, '')
 
-
     def resourseHeader(retvalI, curResourse):
       retvalI.retval =  self._print(retvalI.retval, '')
     def accountHeader(retvalI, curResourse, curAccount, passwordResult, accUser):
@@ -171,13 +170,44 @@ class AppObjClass():
 
     self.executeFilteredSearch(argv, resourseHeader, accountHeader, retvalI)
 
-    retval = retvalI.retval
-    retval = self._print(retval, '')
-    retval = self._print(retval, '# End of file')
-    retval = self._print(retval, '')
+    retvalI.retval = self._print(retvalI.retval, '')
+    retvalI.retval = self._print(retvalI.retval, '# End of file')
+    retvalI.retval = self._print(retvalI.retval, '')
 
-    return retval
-  
+    return retvalI.retval
+
+  def JSON(self, argv, curTime, singleline, escapequotes):
+    class retvalclass():
+      retval = ''
+    retvalI = retvalclass()
+    retvalI.retval = self._printNOLE(retvalI.retval, '{')
+    
+    quote = "\""
+    if escapequotes:
+      quote = "\\\""
+
+    def resourseHeader(retvalI, curResourse):
+      pass
+    def accountHeader(retvalI, curResourse, curAccount, passwordResult, accUser):
+      retvalI.retval = self._printNOLE(retvalI.retval, quote + "global.passman." + curResourse['RESOURCE NAME'] + '.username' + quote + ':' + quote + accUser + quote + ",")
+      retvalI.retval = self._printNOLE(retvalI.retval, quote + "global.passman." + curResourse['RESOURCE NAME'] + '.password' + quote + ':' + quote + passwordResult['response']['operation']['Details']['PASSWORD'] + quote + ",")
+
+    self.executeFilteredSearch(argv, resourseHeader, accountHeader, retvalI)
+
+    if len(retvalI.retval) > 1:
+      retvalI.retval = retvalI.retval[:-1]
+    retvalI.retval = self._printNOLE(retvalI.retval, '}')
+    
+    return retvalI.retval
+
+  def _cmdJSONSINGLELINE(self, argv, curTime):
+    return self.JSON(argv, curTime, singleline=True, escapequotes=False)
+  def _cmdJSONSINGLELINEESCAPEQUOTES(self, argv, curTime):
+    return self.JSON(argv, curTime, singleline=True, escapequotes=True)
+
+
+
+
   def run(self, env, argv):
     return self.runWithTime(env,argv,datetime.datetime.now())
   
@@ -207,6 +237,8 @@ class AppObjClass():
     cmds['GET'] = self._cmdGET
     cmds['RAWGET'] = self._cmdRAWGET
     cmds['JAVAPROPS'] = self._cmdJAVAPROPS
+    cmds['JSONSINGLELINE'] = self._cmdJSONSINGLELINE
+    cmds['JSONSINGLELINEESCAPEQUOTES'] = self._cmdJSONSINGLELINEESCAPEQUOTES
 
     if argv[1].upper().strip() in cmds:
       retval = self._printNOLE(retval, cmds[argv[1].upper().strip()](argv, curTime))
