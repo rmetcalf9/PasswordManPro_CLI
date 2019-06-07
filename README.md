@@ -94,7 +94,7 @@ On windows it is possible to set the output to an enviroment varaible.
 This means the UiLauncher can recieve passwords as JSON arguments:
 
 ````
-FOR /F "tokens=*" %g IN ('passwordmanpro_cli jsonsingleline BANNER') do (SET PASSVAR=%g) > nul
+@FOR /F "tokens=*" %g IN ('passwordmanpro_cli jsonsingleline BANNER') do (@SET PASSVAR=%g) > nul
 
 UiLauncher.exe /file:"workflow.xaml" /input:"%PASSVAR%"
 ````
