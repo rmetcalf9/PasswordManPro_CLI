@@ -6,6 +6,9 @@ import json
 from io import StringIO
 import sys
 
+from python_Testing_Utilities import assertMultiLineStringsEqual
+
+
 from samplePayloadsAndEnvs import envNoKey, env, resourseResponse, accountsResponse, passwordResponse, resourseResponseNoResourses, passwordResponsePortainer, accountsResponsePortainer
 
 appObj = passwordmanpro_cli.AppObjClass()
@@ -27,7 +30,7 @@ class test_JSON(testHelperSuperClass):
       { 'responseCode': 200, 'response': passwordResponse}
     ]
     testTime = datetime.datetime(2016,1,5,14,2,59,0,None)
-    
+
     returnedValue = None
     stdoutValue = ""
     stderrValue = ""
@@ -41,20 +44,20 @@ class test_JSON(testHelperSuperClass):
     finally:
       sys.stdout = out
       sys.stderr = err
-    
+
     self.assertEqual(appObj.url,envNoKey['PASSMANCLI_URL'])
     self.assertEqual(appObj.authtoken,env['PASSMANCLI_AUTHTOKEN'])
     self.assertEqual(appObj.filterToUse,None,msg='Filter should be none')
-    
+
     expectedResult = "{"
     expectedResult = expectedResult + "\"global.passman.soadevteamserver-konga.username\":\"kongaadmin\","
     expectedResult = expectedResult + "\"global.passman.soadevteamserver-konga.password\":\"dummyPasswordForTest\","
     expectedResult = expectedResult + "\"global.passman.soadevteamserver-portainer.username\":\"kongaadmin\","
     expectedResult = expectedResult + "\"global.passman.soadevteamserver-portainer.password\":\"dummyPasswordForTest\""
     expectedResult = expectedResult + "}"
-    
+
     self.maxDiff = None
-    
+
     self.assertEqual(returnedValue, expectedResult, msg='Incorrect output')
 
   @patch('passwordmanpro_cli.AppObjClass._callGetResourses')
@@ -93,14 +96,14 @@ class test_JSON(testHelperSuperClass):
     self.assertEqual(appObj.url,envNoKey['PASSMANCLI_URL'])
     self.assertEqual(appObj.authtoken,env['PASSMANCLI_AUTHTOKEN'])
     self.assertEqual(appObj.filterToUse,['konga'])
-    
+
     expectedResult = "{"
     expectedResult = expectedResult + "\"global.passman.soadevteamserver-konga.username\":\"kongaadmin\","
     expectedResult = expectedResult + "\"global.passman.soadevteamserver-konga.password\":\"dummyPasswordForTest\""
     expectedResult = expectedResult + "}"
-    
+
     self.maxDiff = None
-    
+
     self.assertEqual(returnedValue, expectedResult, msg='Incorrect output')
 
   @patch('passwordmanpro_cli.AppObjClass._callGetResourses')
@@ -113,11 +116,11 @@ class test_JSON(testHelperSuperClass):
     self.assertEqual(appObj.url,envNoKey['PASSMANCLI_URL'])
     self.assertEqual(appObj.authtoken,env['PASSMANCLI_AUTHTOKEN'])
     self.assertEqual(appObj.filterToUse,None,msg='Filter should be none')
-    
+
     expectedResult = "{}"
-    
+
     self.maxDiff = None
-    
+
     self.assertEqual(returnedValue, expectedResult, msg='Incorrect output')
 
   @patch('passwordmanpro_cli.AppObjClass._callGetResourses')
@@ -156,16 +159,16 @@ class test_JSON(testHelperSuperClass):
     self.assertEqual(appObj.url,envNoKey['PASSMANCLI_URL'])
     self.assertEqual(appObj.authtoken,env['PASSMANCLI_AUTHTOKEN'])
     self.assertEqual(appObj.filterToUse,['konga','portainer'])
-    
+
     expectedResult = "{"
     expectedResult = expectedResult + "\"global.passman.soadevteamserver-konga.username\":\"kongaadmin\","
     expectedResult = expectedResult + "\"global.passman.soadevteamserver-konga.password\":\"dummyPasswordForTest\","
     expectedResult = expectedResult + "\"global.passman.soadevteamserver-portainer.username\":\"portaineradmin\","
     expectedResult = expectedResult + "\"global.passman.soadevteamserver-portainer.password\":\"dummyPasswordForTest2\""
     expectedResult = expectedResult + "}"
-    
+
     self.maxDiff = None
-    
+
     self.assertEqual(returnedValue, expectedResult, msg='Incorrect output')
 
   @patch('passwordmanpro_cli.AppObjClass._callGetResourses')
@@ -198,20 +201,20 @@ class test_JSON(testHelperSuperClass):
       sys.stdout = out
       sys.stderr = err
 
-    self.assertEqual(stdoutValue, "", msg="Output File STDOUT was not empty")
-    self.assertEqual(stdoutValue, "", msg="Output File STDERR was not empty")
+    assertMultiLineStringsEqual(stdoutValue, "", self, "Output File STDOUT was not empty", "stdoutValue", "expectedOutput")
+    assertMultiLineStringsEqual(stderrValue, "", self, "Output File STDERR was not empty", "stderrValue", "expectedOutput")
 
     self.assertEqual(appObj.url,envNoKey['PASSMANCLI_URL'])
     self.assertEqual(appObj.authtoken,env['PASSMANCLI_AUTHTOKEN'])
     self.assertEqual(appObj.filterToUse,['konga','portainer'])
-    
+
     expectedResult = "{"
     expectedResult = expectedResult + "\\\"global.passman.soadevteamserver-konga.username\\\":\\\"kongaadmin\\\","
     expectedResult = expectedResult + "\\\"global.passman.soadevteamserver-konga.password\\\":\\\"dummyPasswordForTest\\\","
     expectedResult = expectedResult + "\\\"global.passman.soadevteamserver-portainer.username\\\":\\\"portaineradmin\\\","
     expectedResult = expectedResult + "\\\"global.passman.soadevteamserver-portainer.password\\\":\\\"dummyPasswordForTest2\\\""
     expectedResult = expectedResult + "}"
-    
+
     self.maxDiff = None
-    
+
     self.assertEqual(returnedValue, expectedResult, msg='Incorrect output')

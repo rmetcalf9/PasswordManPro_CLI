@@ -20,7 +20,7 @@ Python and pip must be installed on the machine you wish to use.
 ```
 pip3 install PasswordManPro_CLI
 ```
- 
+
 # Usage
 
 ## Access single password
@@ -58,7 +58,7 @@ Example:
 passwordmanpro_cli jsonsingleline **FILTER**
 passwordmanpro_cli jsonsinglelineEscapeQuote **FILTER1** **FILTER2**
 ```
- 
+
 
 
 ## Directly access the API
@@ -79,7 +79,7 @@ passwordmanpro_cli rawget /restapi/json/v1/resources
 ## Notes
 
 ### Limitations of Password manager API
-In password manager a resourse can have mutiple accounts. Each account has a username and a password, unfortunatly accounts do not have another name associated with them. This makes it impossible to refer to which account will be needed. 
+In password manager a resourse can have mutiple accounts. Each account has a username and a password, unfortunatly accounts do not have another name associated with them. This makes it impossible to refer to which account will be needed.
  - I have experimented with using the notes field but this is not returned in API calls
  - I have experimented with using custom fields but these also were not returned in API calls
 As a workaround only resourses with a single acocunt are output in the generated file and the resourse name is used as an identifier.
@@ -98,3 +98,7 @@ This means the UiLauncher can recieve passwords as JSON arguments:
 
 UiLauncher.exe /file:"workflow.xaml" /input:"%PASSVAR%"
 ````
+
+## Skip SSL Cert Checks
+
+Not recommended for normal use but helpful for testing. Add a parameter NOSSLCHECKS at any point in the parameter string. SSL checks will be skipped and the command run as if the parameter was not there.

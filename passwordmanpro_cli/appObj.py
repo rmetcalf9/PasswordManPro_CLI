@@ -5,6 +5,7 @@ import json
 import datetime
 import re
 import socket
+import ssl
 
 webserviceErrorException = Exception('Webservice Error')
 passwordProErrorException = Exception('Password Pro did not return success')
@@ -41,7 +42,7 @@ class AppObjClass():
   def _callGet(self, url):
     a = urllib.request.urlopen(url)
     return { 'responseCode': a.getcode(), 'response': a.read().decode()}
-  
+
   def _callPassManAPI_get(self, apiurl):
     resp = self._callGet(self.url + apiurl + "?AUTHTOKEN=" + self.authtoken)
     if resp['responseCode']<300:
@@ -109,7 +110,7 @@ class AppObjClass():
     return self._printNOLE(retval,text) + '\n'
 
   def _getAuthTokenFromFile(self, filename):
-    file = open(filename, "r") 
+    file = open(filename, "r")
     return file.read()
 
   def _cmdRAWGET(self, argv, curTime):
@@ -132,7 +133,7 @@ class AppObjClass():
       return retval
     self.resourseName = argv[2]
     self.accountName = argv[3]
-    
+
     listOfResourses = self._callGetResourses()
     if 'response' in listOfResourses:
       if 'operation' in listOfResourses['response']:
@@ -151,7 +152,7 @@ class AppObjClass():
                   return retval
               raise accountNotFoundException
     raise resourseNotFoundException
-  
+
 
   def _cmdJAVAPROPS(self, argv, curTime):
     class retvalclass():
@@ -181,7 +182,7 @@ class AppObjClass():
       retval = ''
     retvalI = retvalclass()
     retvalI.retval = self._printNOLE(retvalI.retval, '{')
-    
+
     quote = "\""
     if escapequotes:
       quote = "\\\""
@@ -197,7 +198,7 @@ class AppObjClass():
     if len(retvalI.retval) > 1:
       retvalI.retval = retvalI.retval[:-1]
     retvalI.retval = self._printNOLE(retvalI.retval, '}')
-    
+
     return retvalI.retval
 
   def _cmdJSONSINGLELINE(self, argv, curTime):
@@ -210,7 +211,7 @@ class AppObjClass():
 
   def run(self, env, argv):
     return self.runWithTime(env,argv,datetime.datetime.now())
-  
+
   def runWithTime(self, env, argv, curTime):
     retval = ''
     if 'PASSMANCLI_URL' not in env:
@@ -218,7 +219,7 @@ class AppObjClass():
       return retval
     if env['PASSMANCLI_URL'][-1:]=='/':
       retval = self._print(retval, 'ERROR - PASSMANCLI_URL can not end with a slash')
-      return retval    
+      return retval
     self.url = env['PASSMANCLI_URL']
     self.authtoken = None
     if 'PASSMANCLI_AUTHTOKEN' in env:
@@ -231,7 +232,21 @@ class AppObjClass():
     if len(argv) < 2:
       retval = self._print(retval, 'ERROR - you must specify at least one argument')
       return retval
-      
+
+    skipSSLChecks = False
+    argvtopass = []
+    for x in argv:
+      if x.upper()=="NOSSLCHECKS":
+        skipSSLChecks = True
+      else:
+        argvtopass.append(x)
+
+    if skipSSLChecks:
+      ##print("Skipping SSL Checks")
+      ctx = ssl.create_default_context()
+      ctx.check_hostname = False
+      ctx.verify_mode = ssl.CERT_NONE
+
     # Using a dictonary of all the command functions
     cmds = {}
     cmds['GET'] = self._cmdGET
@@ -240,10 +255,14 @@ class AppObjClass():
     cmds['JSONSINGLELINE'] = self._cmdJSONSINGLELINE
     cmds['JSONSINGLELINEESCAPEQUOTES'] = self._cmdJSONSINGLELINEESCAPEQUOTES
 
-    if argv[1].upper().strip() in cmds:
-      retval = self._printNOLE(retval, cmds[argv[1].upper().strip()](argv, curTime))
+    if argvtopass[1].upper().strip() in cmds:
+      retval = self._printNOLE(retval, cmds[argvtopass[1].upper().strip()](argvtopass, curTime))
       return retval
     retval = self._print(retval, 'ERROR - Unknown command supplied in first argument')
+    retval = self._print(retval, ' Supported Commands -')
+    for x in cmds:
+      retval = self._print(retval, '   ' + x)
+
     return retval
 
 

@@ -10,7 +10,8 @@ sp_install_requires = [
 #  'sortedcontainers==1.5.9'
 ]
 sp_tests_require = [
-  'nose==1.3.7'
+  'nose==1.3.7',
+  'python_Testing_Utilities==0.1.3'
 ]
 
 all_require = sp_install_requires + sp_tests_require

@@ -2,6 +2,7 @@ from TestHelperSuperClass import testHelperSuperClass
 from unittest.mock import patch
 import passwordmanpro_cli
 import datetime
+from python_Testing_Utilities import assertMultiLineStringsEqual
 
 from samplePayloadsAndEnvs import envNoKey, envUrlWithSlash, envAPIKEYFILE, env, resourseResponse, resourseResponseRAW, resourseResponseNoResourses, errorResourseResponseRAW, accountsResponse, accountsResponseRAW, passwordResponse, passwordResponseRAW, userNotAllowedToAccessFromThisHost
 
@@ -38,7 +39,14 @@ class test_AppObj(testHelperSuperClass):
 
   def test_UnknownCommand(self):
     returnedValue = appObj.run(env, ['passwordmanpro_cli', 'XXX'])
-    self.assertEqual(returnedValue, 'ERROR - Unknown command supplied in first argument\n', msg='Incorrect output')
+    expectedOutput = 'ERROR - Unknown command supplied in first argument\n'
+    expectedOutput += ' Supported Commands -\n'
+    expectedOutput += '   GET\n'
+    expectedOutput += '   RAWGET\n'
+    expectedOutput += '   JAVAPROPS\n'
+    expectedOutput += '   JSONSINGLELINE\n'
+    expectedOutput += '   JSONSINGLELINEESCAPEQUOTES\n'
+    assertMultiLineStringsEqual(returnedValue, expectedOutput, self, "returnedValue", "expectedOutput")
 
   def test_GetMissingArguments(self):
     returnedValue = appObj.run(env, ['passwordmanpro_cli', 'get'])
@@ -60,6 +68,21 @@ class test_AppObj(testHelperSuperClass):
       { 'responseCode': 200, 'response': passwordResponseRAW}
     ]
     returnedValue = appObj.run(env, ['passwordmanpro_cli', 'get', 'soadevteamserver-konga', 'kongaadmin'])
+    self.assertEqual(appObj.url,envNoKey['PASSMANCLI_URL'])
+    self.assertEqual(appObj.authtoken,env['PASSMANCLI_AUTHTOKEN'])
+    self.assertEqual(appObj.resourseName,'soadevteamserver-konga')
+    self.assertEqual(appObj.accountName,'kongaadmin')
+    #NOTE- no line break when password is supplied
+    self.assertEqual(returnedValue, 'dummyPasswordForTest', msg='Incorrect output')
+
+  @patch('passwordmanpro_cli.AppObjClass._callGet')
+  def test_GetNormalNOSSL(self, getResoursesResponse):
+    getResoursesResponse.side_effect  = [
+      { 'responseCode': 200, 'response': resourseResponseRAW},
+      { 'responseCode': 200, 'response': accountsResponseRAW},
+      { 'responseCode': 200, 'response': passwordResponseRAW}
+    ]
+    returnedValue = appObj.run(env, ['passwordmanpro_cli', 'get', 'soadevteamserver-konga', 'kongaadmin','NOSSLCHECKS'])
     self.assertEqual(appObj.url,envNoKey['PASSMANCLI_URL'])
     self.assertEqual(appObj.authtoken,env['PASSMANCLI_AUTHTOKEN'])
     self.assertEqual(appObj.resourseName,'soadevteamserver-konga')
@@ -124,5 +147,3 @@ class test_AppObj(testHelperSuperClass):
     with self.assertRaises(Exception) as context:
       returnedValue = appObj.run(env, ['passwordmanpro_cli', 'get', 'soadevteamserver-konga', 'somePass'])
     self.checkGotRightException(context,passwordmanpro_cli.resourseNotFoundException)
-
-
