@@ -13,6 +13,9 @@ resourseNotFoundException = Exception('Resourse Not Found')
 accountNotFoundException = Exception('Password Not Found')
 badArgumentsException = Exception('Bad arguments')
 
+sslctx = ssl.create_default_context()
+
+
 # Function to output error
 def eprint(*args, **kwargs):
   print(*args, **kwargs)
@@ -40,7 +43,7 @@ class AppObjClass():
 
   #Functions seperated out so unit tests can patch them
   def _callGet(self, url):
-    a = urllib.request.urlopen(url)
+    a = urllib.request.urlopen(url, context=sslctx)
     return { 'responseCode': a.getcode(), 'response': a.read().decode()}
 
   def _callPassManAPI_get(self, apiurl):
@@ -243,9 +246,8 @@ class AppObjClass():
 
     if skipSSLChecks:
       ##print("Skipping SSL Checks")
-      ctx = ssl.create_default_context()
-      ctx.check_hostname = False
-      ctx.verify_mode = ssl.CERT_NONE
+      sslctx.check_hostname = False
+      sslctx.verify_mode = ssl.CERT_NONE
 
     # Using a dictonary of all the command functions
     cmds = {}
