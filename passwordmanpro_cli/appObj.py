@@ -260,7 +260,9 @@ class AppObjClass():
       return retval
     retval = self._print(retval, 'ERROR - Unknown command supplied in first argument')
     retval = self._print(retval, ' Supported Commands -')
-    for x in cmds:
+    ll = list(cmds.keys())
+    ll.sort()
+    for x in ll:
       retval = self._print(retval, '   ' + x)
 
     return retval

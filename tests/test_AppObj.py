@@ -42,10 +42,10 @@ class test_AppObj(testHelperSuperClass):
     expectedOutput = 'ERROR - Unknown command supplied in first argument\n'
     expectedOutput += ' Supported Commands -\n'
     expectedOutput += '   GET\n'
-    expectedOutput += '   RAWGET\n'
     expectedOutput += '   JAVAPROPS\n'
     expectedOutput += '   JSONSINGLELINE\n'
     expectedOutput += '   JSONSINGLELINEESCAPEQUOTES\n'
+    expectedOutput += '   RAWGET\n'
     assertMultiLineStringsEqual(returnedValue, expectedOutput, self, "returnedValue", "expectedOutput")
 
   def test_GetMissingArguments(self):
