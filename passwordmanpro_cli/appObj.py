@@ -216,10 +216,10 @@ class AppObjClass():
     retval = ''
     if 'PASSMANCLI_URL' not in env:
       retval = self._print(retval, 'ERROR - you must specify PASSMANCLI_URL enviroment variable')
-      return retval, []
+      return retval
     if env['PASSMANCLI_URL'][-1:]=='/':
       retval = self._print(retval, 'ERROR - PASSMANCLI_URL can not end with a slash')
-      return retval, []
+      return retval
     self.url = env['PASSMANCLI_URL']
 
     self.authtoken = None
@@ -229,10 +229,25 @@ class AppObjClass():
       self.authtoken = self._getAuthTokenFromFile(env['PASSMANCLI_AUTHTOKENFILE'])
     if self.authtoken is None:
       retval = self._print(retval, 'ERROR - you must specify PASSMANCLI_AUTHTOKEN or PASSMANCLI_AUTHTOKENFILE enviroment variable')
-      return retval, []
+      return retval
     if len(argv) < 2:
       retval = self._print(retval, 'ERROR - you must specify at least one argument')
-      return retval, []
+      return retval
+
+    return retval
+
+  def skipSSLChecks(self):
+    ##print("Skipping SSL Checks")
+    sslctx.check_hostname = False
+    sslctx.verify_mode = ssl.CERT_NONE
+
+  def run(self, env, argv):
+    return self.runWithTime(env,argv,datetime.datetime.now())
+
+  def runWithTime(self, env, argv, curTime):
+    retval = self.setupFromEnvironment(env, argv)
+    if retval != '':
+      return retval #setup errored
 
     skipSSLChecks = False
     argvtopass = []
@@ -243,20 +258,7 @@ class AppObjClass():
         argvtopass.append(x)
 
     if skipSSLChecks:
-      ##print("Skipping SSL Checks")
-      sslctx.check_hostname = False
-      sslctx.verify_mode = ssl.CERT_NONE
-
-    return retval, argvtopass
-
-  def run(self, env, argv):
-    return self.runWithTime(env,argv,datetime.datetime.now())
-
-  def runWithTime(self, env, argv, curTime):
-    retval, argvtopass = self.setupFromEnvironment(env, argv)
-    if retval != '':
-      print("DD", retval)
-      return retval #setup errored
+      self.skipSSLChecks()
 
     # Using a dictonary of all the command functions
     cmds = {}
@@ -284,10 +286,12 @@ def main():
   app = AppObjClass()
   print(app.run(os.environ, sys.argv))
 
-def getSinglePassword(resourseName, accountName):
+def getSinglePassword(resourseName, accountName, skipSSLChecks=False):
   app = AppObjClass()
-  retval, argvtopass = self.setupFromEnvironment(env, argv)
+  retval = self.setupFromEnvironment(env, argv)
   if retval != '':
     raise badArgumentsException
+  if skipSSLChecks:
+    self.skipSSLChecks()
 
   return app.getSinglePassword(resourseName, accountName)

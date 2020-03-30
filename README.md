@@ -102,3 +102,27 @@ UiLauncher.exe /file:"workflow.xaml" /input:"%PASSVAR%"
 ## Skip SSL Cert Checks
 
 Not recommended for normal use but helpful for testing. Add a parameter NOSSLCHECKS at any point in the parameter string. SSL checks will be skipped and the command run as if the parameter was not there.
+
+## Using inside another python app
+
+Sample code:
+````
+import passwordmanpro_cli
+
+print("Start")
+
+resourseName = "OpenWeatherMap_DEV_APIKEY"
+acocuntName = "API_KEY"
+
+print("Retrieving ", resourseName, " ", acocuntName)
+
+passwordRetrieved = passwordmanpro_cli.getSinglePassword(
+  resourseName=resourseName,
+  accountName=accountName,
+  skipSSLChecks=False
+)
+
+print(passwordRetrieved)
+
+print("End")
+````

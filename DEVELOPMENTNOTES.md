@@ -10,6 +10,9 @@ python setup.py install
 passwordmanpro_cli
 ```
 
+# Testing
+
+use continous_test.sh
 
 # Release process
 
