@@ -288,10 +288,10 @@ def main():
 
 def getSinglePassword(resourseName, accountName, skipSSLChecks=False):
   app = AppObjClass()
-  retval = self.setupFromEnvironment(env, argv)
+  retval = app.setupFromEnvironment(env, argv)
   if retval != '':
     raise badArgumentsException
   if skipSSLChecks:
-    self.skipSSLChecks()
+    app.skipSSLChecks()
 
   return app.getSinglePassword(resourseName, accountName)
