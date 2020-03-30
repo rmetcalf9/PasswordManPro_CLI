@@ -212,7 +212,7 @@ class AppObjClass():
     return self.JSON(argv, curTime, singleline=True, escapequotes=True)
 
 
-  def setupFromEnvironment(self, env, argv):
+  def setupFromEnvironment(self, env):
     retval = ''
     if 'PASSMANCLI_URL' not in env:
       retval = self._print(retval, 'ERROR - you must specify PASSMANCLI_URL enviroment variable')
@@ -230,10 +230,6 @@ class AppObjClass():
     if self.authtoken is None:
       retval = self._print(retval, 'ERROR - you must specify PASSMANCLI_AUTHTOKEN or PASSMANCLI_AUTHTOKENFILE enviroment variable')
       return retval
-    if len(argv) < 2:
-      retval = self._print(retval, 'ERROR - you must specify at least one argument')
-      return retval
-
     return retval
 
   def skipSSLChecks(self):
@@ -245,9 +241,13 @@ class AppObjClass():
     return self.runWithTime(env,argv,datetime.datetime.now())
 
   def runWithTime(self, env, argv, curTime):
-    retval = self.setupFromEnvironment(env, argv)
+    retval = self.setupFromEnvironment(env)
     if retval != '':
       return retval #setup errored
+
+    if len(argv) < 2:
+      retval = self._print(retval, 'ERROR - you must specify at least one argument')
+      return retval
 
     skipSSLChecks = False
     argvtopass = []
@@ -286,10 +286,11 @@ def main():
   app = AppObjClass()
   print(app.run(os.environ, sys.argv))
 
-def getSinglePassword(resourseName, accountName, skipSSLChecks=False):
+def getSinglePassword(resourseName, accountName, skipSSLChecks=False, env=os.environ):
   app = AppObjClass()
-  retval = app.setupFromEnvironment(env, argv)
+  retval = app.setupFromEnvironment(env)
   if retval != '':
+    print(retval)
     raise badArgumentsException
   if skipSSLChecks:
     app.skipSSLChecks()
