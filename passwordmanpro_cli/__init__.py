@@ -8,7 +8,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from .appObj import AppObjClass, main, webserviceErrorException, passwordProErrorException, resourseNotFoundException, accountNotFoundException, badArgumentsException
+from .appObj import AppObjClass, main, webserviceErrorException, passwordProErrorException, resourseNotFoundException, accountNotFoundException, badArgumentsException, getSinglePassword
 
 from ._version import get_versions
 __version__ = get_versions()['version']

@@ -129,14 +129,7 @@ class AppObjClass():
     retval = self._print(retval, resp['RAWresponse'])
     return retval
 
-  def _cmdGET(self, argv, curTime):
-    retval = ''
-    if len(argv) != 4:
-      retval = self._print(retval, 'ERROR - get needs arguments "passwordmanpro_cli get **RESOURSE_NAME** **ACCOUNT_NAME**"')
-      return retval
-    self.resourseName = argv[2]
-    self.accountName = argv[3]
-
+  def getSinglePassword(self, resourseName, accountName):
     listOfResourses = self._callGetResourses()
     if 'response' in listOfResourses:
       if 'operation' in listOfResourses['response']:
@@ -145,17 +138,26 @@ class AppObjClass():
             raise resourseNotFoundException
         if 'Details' in listOfResourses['response']['operation']:
           for curResourse in listOfResourses['response']['operation']['Details']:
-            if curResourse['RESOURCE NAME'] == self.resourseName:
+            if curResourse['RESOURCE NAME'] == resourseName:
               listOfPasswordsForThisResourse = self._callGetAccounts(curResourse['RESOURCE ID'])
               for curAccount in listOfPasswordsForThisResourse['response']['operation']['Details']['ACCOUNT LIST']:
-                if curAccount['ACCOUNT NAME'] == self.accountName:
+                if curAccount['ACCOUNT NAME'] == accountName:
                   password = self._callGetPassword(curResourse['RESOURCE ID'], curAccount['ACCOUNT ID'])
-                  #No line break output here
-                  retval = self._printNOLE(retval, password['response']['operation']['Details']['PASSWORD'])
-                  return retval
+                  return password['response']['operation']['Details']['PASSWORD']
               raise accountNotFoundException
     raise resourseNotFoundException
 
+  def _cmdGET(self, argv, curTime):
+    retval = ''
+    if len(argv) != 4:
+      retval = self._print(retval, 'ERROR - get needs arguments "passwordmanpro_cli get **RESOURSE_NAME** **ACCOUNT_NAME**"')
+      return retval
+    self.resourseName = argv[2]
+    self.accountName = argv[3]
+
+    retval = self._printNOLE(retval, self.getSinglePassword(self.resourseName, self.accountName))
+
+    return retval
 
   def _cmdJAVAPROPS(self, argv, curTime):
     class retvalclass():
@@ -210,20 +212,16 @@ class AppObjClass():
     return self.JSON(argv, curTime, singleline=True, escapequotes=True)
 
 
-
-
-  def run(self, env, argv):
-    return self.runWithTime(env,argv,datetime.datetime.now())
-
-  def runWithTime(self, env, argv, curTime):
+  def setupFromEnvironment(self, env, argv):
     retval = ''
     if 'PASSMANCLI_URL' not in env:
       retval = self._print(retval, 'ERROR - you must specify PASSMANCLI_URL enviroment variable')
-      return retval
+      return retval, []
     if env['PASSMANCLI_URL'][-1:]=='/':
       retval = self._print(retval, 'ERROR - PASSMANCLI_URL can not end with a slash')
-      return retval
+      return retval, []
     self.url = env['PASSMANCLI_URL']
+
     self.authtoken = None
     if 'PASSMANCLI_AUTHTOKEN' in env:
       self.authtoken = env['PASSMANCLI_AUTHTOKEN']
@@ -231,10 +229,10 @@ class AppObjClass():
       self.authtoken = self._getAuthTokenFromFile(env['PASSMANCLI_AUTHTOKENFILE'])
     if self.authtoken is None:
       retval = self._print(retval, 'ERROR - you must specify PASSMANCLI_AUTHTOKEN or PASSMANCLI_AUTHTOKENFILE enviroment variable')
-      return retval
+      return retval, []
     if len(argv) < 2:
       retval = self._print(retval, 'ERROR - you must specify at least one argument')
-      return retval
+      return retval, []
 
     skipSSLChecks = False
     argvtopass = []
@@ -248,6 +246,17 @@ class AppObjClass():
       ##print("Skipping SSL Checks")
       sslctx.check_hostname = False
       sslctx.verify_mode = ssl.CERT_NONE
+
+    return retval, argvtopass
+
+  def run(self, env, argv):
+    return self.runWithTime(env,argv,datetime.datetime.now())
+
+  def runWithTime(self, env, argv, curTime):
+    retval, argvtopass = self.setupFromEnvironment(env, argv)
+    if retval != '':
+      print("DD", retval)
+      return retval #setup errored
 
     # Using a dictonary of all the command functions
     cmds = {}
@@ -274,3 +283,11 @@ class AppObjClass():
 def main():
   app = AppObjClass()
   print(app.run(os.environ, sys.argv))
+
+def getSinglePassword(resourseName, accountName):
+  app = AppObjClass()
+  retval, argvtopass = self.setupFromEnvironment(env, argv)
+  if retval != '':
+    raise badArgumentsException
+
+  return app.getSinglePassword(resourseName, accountName)
